@@ -57,7 +57,7 @@ export function AppShell() {
       <div className="flex items-center gap-3 rounded-xl px-3 py-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#dbeaf4] text-xs font-semibold text-[#4b7896]">{auth?.user.full_name.charAt(0).toUpperCase()}</div>
         <div className="min-w-0 flex-1"><p className="truncate text-xs font-semibold text-ink">{auth?.user.full_name}</p><p className="truncate text-[11px] text-muted">{auth?.mode === 'demo' ? 'Vista de muestra' : auth?.user.role === 'admin' ? 'Administrador' : auth?.user.role === 'operator' ? 'Operador' : 'Observador'}</p></div>
-        <button type="button" onClick={signOut} className="rounded-lg p-2 text-muted hover:bg-powder hover:text-ink" aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={17} /></button>
+        {import.meta.env.VITE_STATIC_DEMO !== 'true' && <button type="button" onClick={signOut} className="rounded-lg p-2 text-muted hover:bg-powder hover:text-ink" aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={17} /></button>}
       </div>
     </div>
   </>
@@ -72,7 +72,7 @@ export function AppShell() {
           <span className="hidden text-xs text-muted sm:inline">Plataforma</span><ChevronRight size={14} className="hidden text-[#a2b7c6] sm:inline" /><span className="text-sm font-medium text-ink">{headings[location.pathname] ?? 'GridWatch'}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#d7e8f3] bg-[#f1f8fc] px-3 py-1.5 text-[11px] font-semibold text-[#4b7896]"><span className="h-1.5 w-1.5 rounded-full bg-[#87b4cd]" />{auth?.mode === 'demo' ? 'Vista demo local' : liveStatus === 'connected' ? 'En vivo · simulador' : liveStatus === 'connecting' ? 'Conectando…' : 'Sin conexión en vivo'}</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#d7e8f3] bg-[#f1f8fc] px-3 py-1.5 text-[11px] font-semibold text-[#4b7896]"><span className="h-1.5 w-1.5 rounded-full bg-[#87b4cd]" />{auth?.mode === 'demo' ? (import.meta.env.VITE_STATIC_DEMO === 'true' ? 'Vista demo pública' : 'Vista demo local') : liveStatus === 'connected' ? 'En vivo · simulador' : liveStatus === 'connecting' ? 'Conectando…' : 'Sin conexión en vivo'}</span>
           <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-[#eff5f9] text-[#6a8aa0] sm:flex"><ShieldCheck size={16} /></span>
         </div>
       </header>

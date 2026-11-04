@@ -1,6 +1,6 @@
 import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider, useAuth } from './app/AuthContext'
 import { DataProvider } from './app/DataContext'
 import { AppShell } from './app/AppShell'
@@ -13,6 +13,7 @@ const HistoryPage = lazy(() => import('./features/HistoryPage').then((module) =>
 const AlertsPage = lazy(() => import('./features/AlertsPage').then((module) => ({ default: module.AlertsPage })))
 const ReportsPage = lazy(() => import('./features/ReportsPage').then((module) => ({ default: module.ReportsPage })))
 const AdminPage = lazy(() => import('./features/AdminPage').then((module) => ({ default: module.AdminPage })))
+const Router = import.meta.env.VITE_STATIC_DEMO === 'true' ? HashRouter : BrowserRouter
 
 function PrivateLayout() {
   const { auth, checking } = useAuth()
@@ -23,7 +24,7 @@ function PrivateLayout() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <Router>
       <AuthProvider>
         <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-sm text-muted">Cargando vista…</div>}><Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -38,6 +39,6 @@ createRoot(document.getElementById('root')!).render(
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes></Suspense>
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   </StrictMode>,
 )

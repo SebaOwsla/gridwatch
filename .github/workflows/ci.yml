@@ -107,3 +107,40 @@ jobs:
       - name: Clean up CI containers
         if: always()
         run: docker compose down -v --remove-orphans
+
+  pages:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    needs: [backend, frontend, integration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: gridwatch-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci
+      - name: Build public simulated demo
+        working-directory: frontend
+        env:
+          VITE_STATIC_DEMO: 'true'
+        run: npm run build -- --base /gridwatch/
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: frontend/dist
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -16,9 +16,11 @@ interface AuthContextValue {
 }
 
 const STORAGE_KEY = 'gridwatch-session'
+const STATIC_DEMO = import.meta.env.VITE_STATIC_DEMO === 'true'
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 function storedSession(): AuthState | null {
+  if (STATIC_DEMO) return { mode: 'demo', user: demoUser }
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     if (!raw) return null

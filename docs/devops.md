@@ -184,3 +184,23 @@ y los archivos compilados están fuera del repositorio.
 Si un trabajo falla, abre su registro en Actions. El trabajo de integración
 publica los últimos mensajes de los contenedores al fallar y borra los
 volúmenes temporales al terminar.
+
+### Demo pública en GitHub Pages
+
+La página de [GridWatch](https://sebaowsla.github.io/gridwatch/) se despliega
+desde el trabajo `pages` de `ci.yml` después de pasar las pruebas. El build usa
+`/gridwatch/` como base de recursos y rutas con `#`, para que funcionen al
+recargar en GitHub Pages. Entra directamente al dashboard con datos ficticios.
+Esta versión pública es de solo lectura; las rutas JWT, MQTT, WebSockets y los
+reportes descargables requieren la pila Docker local.
+
+Para reproducir el build estático en PowerShell:
+
+```powershell
+Set-Location frontend
+$env:VITE_STATIC_DEMO = 'true'
+npm run build -- --base /gridwatch/
+Remove-Item Env:VITE_STATIC_DEMO
+```
+
+La configuración sigue la [guía oficial de Vite para GitHub Pages](https://vite.dev/guide/static-deploy.html).

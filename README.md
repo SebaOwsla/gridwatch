@@ -2,6 +2,8 @@
 
 [![GridWatch CI](https://github.com/SebaOwsla/gridwatch/actions/workflows/ci.yml/badge.svg)](https://github.com/SebaOwsla/gridwatch/actions/workflows/ci.yml)
 
+**Demo pública:** [abrir GridWatch](https://sebaowsla.github.io/gridwatch/) · datos simulados, acceso de solo lectura.
+
 Plataforma web de demostración para monitoreo eléctrico industrial. El proyecto
 representa instalaciones y equipos de minería, centrales hidroeléctricas y
 subestaciones mediante datos simulados. No incluye conexión de control a equipos
@@ -128,5 +130,6 @@ demo y sus límites de solo lectura. Consulta [la guía del frontend](docs/front
 6. Docker Compose, pruebas de integración y GitHub Actions.
 
 La fase 6 incluye Compose, imágenes y un workflow de CI. La integración local
-con broker y base de datos se comprobó con 12 lecturas; el workflow de GitHub
-Actions queda pendiente de una ejecución remota.
+con broker y base de datos se comprobó con 12 lecturas; GitHub Actions pasó
+backend, frontend e integración Docker. La demo pública se publica en GitHub
+Pages después de que esos trabajos terminan correctamente.
