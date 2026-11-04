@@ -158,21 +158,23 @@ sin interferencia de otras lecturas.
 La pila local se construyó y arrancó en Docker Desktop. Se verificaron los
 estados saludables de la base, API y web, la extensión TimescaleDB 2.31.0,
 las migraciones, la persistencia de 12 lecturas publicadas por MQTT y la prueba
-integral autenticada. La ejecución remota de GitHub Actions queda pendiente.
+integral autenticada. El primer workflow de GitHub Actions pasó sus tres
+trabajos: backend, frontend e integración Docker.
 
-### Publicar el proyecto y ejecutar GitHub Actions
+### Ejecutar GitHub Actions
 
-El repositorio local aún no tiene remoto. Crea un repositorio vacío llamado
-`gridwatch` en tu cuenta de GitHub y conecta su URL HTTPS. Desde la raíz del
-proyecto:
+El repositorio público está en
+[SebaOwsla/gridwatch](https://github.com/SebaOwsla/gridwatch). `origin` apunta a
+esa dirección. Cada `git push` a `main` ejecuta `GridWatch CI` de forma
+automática. Para iniciarlo manualmente desde la consola:
 
 ```powershell
-git remote add origin https://github.com/TU_USUARIO/gridwatch.git
-git push -u origin main
+gh workflow run ci.yml --repo SebaOwsla/gridwatch
+gh run list --repo SebaOwsla/gridwatch --limit 5
 ```
 
-El primer `push` ejecuta automáticamente `GridWatch CI`. También puedes abrir
-la pestaña **Actions**, elegir **GridWatch CI** y pulsar **Run workflow**.
+También puedes abrir la pestaña **Actions**, elegir **GridWatch CI** y pulsar
+**Run workflow**.
 Los tres trabajos comprueban backend, frontend e integración Docker; esta
 última incluye respaldo, restauración y prueba de retención en una base
 temporal. El workflow usa contraseñas ficticias solo dentro del runner de CI,

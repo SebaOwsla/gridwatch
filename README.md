@@ -1,5 +1,7 @@
 # GridWatch
 
+[![GridWatch CI](https://github.com/SebaOwsla/gridwatch/actions/workflows/ci.yml/badge.svg)](https://github.com/SebaOwsla/gridwatch/actions/workflows/ci.yml)
+
 Plataforma web de demostración para monitoreo eléctrico industrial. El proyecto
 representa instalaciones y equipos de minería, centrales hidroeléctricas y
 subestaciones mediante datos simulados. No incluye conexión de control a equipos
@@ -7,7 +9,7 @@ eléctricos reales.
 
 ## Estado
 
-**Fases 1 a 6 implementadas y verificadas localmente:** estructura, esquema de
+**Fases 1 a 6 implementadas y verificadas localmente y en GitHub Actions:** estructura, esquema de
 datos, API REST, interfaz React responsive, telemetría simulada y Docker Compose.
 La pila arrancó con TimescaleDB 2.31.0, Mosquitto, FastAPI y Nginx; el simulador
 publicó 12 mediciones MQTT y las 12 se guardaron en TimescaleDB. Abre
