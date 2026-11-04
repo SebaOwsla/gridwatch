@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gridwatch-simulator"
+version = "0.1.0"
+description = "Fictional electrical telemetry publisher for GridWatch"
+requires-python = ">=3.12"
+dependencies = ["paho-mqtt>=2.1,<3.0", "python-dotenv>=1.0,<2.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gridwatch_simulator*"]

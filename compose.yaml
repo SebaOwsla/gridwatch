@@ -1,0 +1,108 @@
+name: gridwatch
+
+services:
+  db:
+    image: timescale/timescaledb:2.31.0-pg17-oss
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gridwatch}
+      POSTGRES_USER: ${POSTGRES_USER:-gridwatch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  mqtt:
+    image: eclipse-mosquitto:2.0.22
+    volumes:
+      - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - "127.0.0.1:1883:1883"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      APP_ENV: development
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_ENABLED: "true"
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in .env}
+      CORS_ORIGINS: http://127.0.0.1:8080,http://localhost:8080,http://${GRIDWATCH_WEB_BIND_IP:-127.0.0.1}:8080
+      TRUSTED_HOSTS: 127.0.0.1,localhost,api,${GRIDWATCH_WEB_BIND_IP:-127.0.0.1}
+    command: >-
+      sh -c "python -m alembic upgrade head &&
+      exec python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "${GRIDWATCH_WEB_BIND_IP:-127.0.0.1}:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  simulator:
+    profiles: ["live"]
+    build:
+      context: .
+      dockerfile: simulator/Dockerfile
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_TOPIC_PREFIX: gridwatch/demo
+      SIMULATOR_INTERVAL_SECONDS: ${SIMULATOR_INTERVAL_SECONDS:-2}
+    depends_on:
+      api:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+    restart: unless-stopped
+
+  retention:
+    image: timescale/timescaledb:2.31.0-pg17-oss
+    entrypoint: ["/bin/sh", "/opt/gridwatch/retention.sh"]
+    environment:
+      PGUSER: ${POSTGRES_USER:-gridwatch}
+      PGDATABASE: ${POSTGRES_DB:-gridwatch}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - ./infra/retention/retention.sh:/opt/gridwatch/retention.sh:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:
